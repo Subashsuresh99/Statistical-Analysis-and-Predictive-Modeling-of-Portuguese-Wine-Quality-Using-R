@@ -1,0 +1,8 @@
+\contentsline {table}{\numberline {1}{\ignorespaces Abbreviations and Key Terms}}{5}{table.caption.1}%
+\contentsline {table}{\numberline {2}{\ignorespaces Summary statistics of wine dataset variables}}{6}{table.caption.2}%
+\contentsline {table}{\numberline {3}{\ignorespaces Frequencies of categorical variables}}{6}{table.caption.3}%
+\contentsline {table}{\numberline {4}{\ignorespaces Summary of skewness and number of outliers for numeric variables}}{8}{table.caption.4}%
+\contentsline {table}{\numberline {5}{\ignorespaces OLS coefficients for red-wine quality (adjusted $R^{2}=0.356$)}}{14}{table.caption.9}%
+\contentsline {table}{\numberline {6}{\ignorespaces Confusion matrix and performance metrics ($n_{\text {test}}=134$)}}{16}{table.caption.11}%
+\contentsline {table}{\numberline {7}{\ignorespaces Confusion matrix and quality figures (validation set, \(n = 1\,950\))}}{17}{table.caption.13}%
+\contentsline {table}{\numberline {8}{\ignorespaces Pattern matrix and variance explained ($n=6\,497$, PAF extraction)}}{19}{table.caption.16}%

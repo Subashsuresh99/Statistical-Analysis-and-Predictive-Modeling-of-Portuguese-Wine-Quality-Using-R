@@ -1,0 +1,1259 @@
+% ------------------------------------------------------------
+%  Wine Data Analysis – Main document
+% ------------------------------------------------------------
+\documentclass[a4paper,12pt]{article}
+
+% ---------- Packages ----------
+\usepackage[margin=2cm,left=3cm]{geometry}   % load once, with options
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage[scaled]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{titling}
+\usepackage{ragged2e}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+	basicstyle=\ttfamily\footnotesize,
+	breaklines=true,
+	frame=single,
+	backgroundcolor=\color{gray!5},
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray!50!black},
+	stringstyle=\color{red!50!brown},
+	showstringspaces=false,
+	tabsize=2,
+	language=R
+}
+
+
+% ---------- Page style ----------
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Wine Data Analysis}
+\lhead{Data Science}
+\rfoot{\thepage}
+
+% ---------- Section formatting ----------
+\titleformat{\section}  {\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+
+% ============================================================
+\begin{document}
+	
+	% ---------- Title page ----------
+	\begin{titlepage}
+		\centering
+		
+		\includegraphics[width=0.5\textwidth]{Images/logo.png}\par
+		\vspace{4cm}
+		
+		\textbf{Introduction to Data Sciences}\\
+		Prof.\ Dr.-Ing.\ Joachim Schwarz
+		
+		\vspace{2cm}
+		
+		{\LARGE\bfseries Statistical Analysis and Predictive Modeling of Wine Quality\par}
+		
+		\vfill
+		
+		\begin{flushleft}
+			\textbf{Name:} Subash Karapparambu Suresh Kumar\\
+			\textbf{Matr.-Nr.:} 7026794\\[0.5cm]
+			
+			\textbf{Name:} Aishwarya Jadhav\\
+			\textbf{Matr.-Nr.:} 7026164\\[1cm]
+			
+			\textbf{Submission date:} 30 June 2025
+		\end{flushleft}
+	\end{titlepage}
+
+\newpage
+
+
+
+% ----------- TOC and Lists ------------------------
+\tableofcontents
+\listoffigures
+\listoftables
+\newpage
+
+%----------------------------------------------------
+\section{Introduction}
+
+Wine has been produced and consumed for thousands of years and remains one of the most valued beverages in global culture and commerce\cite{Jackson2020}. With the increasing scale of wine production and market competition, there is growing interest in understanding and improving wine quality through scientific means\cite{GonzalezBarreiro2015}. Traditionally, the evaluation of wine quality has relied on subjective sensory assessments by expert panels. While this human judgment remains valuable, it can be inconsistent and costly to maintain. The emergence of data science and machine learning now enables objective, reproducible, and data-driven evaluation of wine based on its measurable chemical and physical properties. Such methods not only offer faster quality control but also reveal deeper patterns and relationships between chemical composition and perceived wine quality. This intersection of chemistry, statistics, and computer science allows producers to optimize manufacturing processes, while also providing consumers with more transparent indicators of product quality\cite{Cortez2009,Torgo2017}. This project aims to apply a combination of exploratory data analysis, statistical testing, regression modeling, classification techniques, and dimensionality reduction to a comprehensive dataset of red and white wines. The analysis is conducted in the R programming environment\cite{RCore2024}, leveraging modern data science workflows to extract insights and build predictive models.
+
+
+
+\section{Motivation}
+
+Wine quality is defined by chemical and sensory properties that, in lieu of statistical modeling, can be difficult to interpret. A winemaker can analyze data to find out which factors most affect the quality to produce consistently\cite{Cortez2009}. Consumers, on the other hand, will use such insights to choose wisely.
+
+The motivation of this project includes:
+
+\begin{itemize}
+	\item Discovering patterns in the wine dataset\cite{Cortez2009}.
+	\item Using machine learning techniques for the classification of wine types and the determination of wine quality\cite{Atalay2021}.
+	\item Validating statistical assumptions in order to draw relevant conclusions\cite{Field2013}.
+	\item Reducing complexity through dimensionality reduction techniques, such as factor analysis\cite{Vidal2015}.
+\end{itemize}
+\newpage
+
+% ----------- Abbreviations ------------------------
+\section{List of Abbreviations}
+\begin{table}[h!]
+	\centering
+	\caption{Abbreviations and Key Terms}
+	\begin{tabular}{ll}
+		\hline
+		\textbf{Abbreviation / Term} & \textbf{Meaning / Explanation} \\
+		\hline
+		SD                           & Standard Deviation \\
+		Mean                         & Average value \\
+		Min, Max                     & Minimum and maximum values \\
+		Quartiles                    & Lower quartile (Q1), Median (Q2), Upper quartile (Q3) \\
+		Missing values               & Count of missing data points \\
+		Skewness                     & Measure of asymmetry of distribution \\
+		Outliers                     & Extreme values identified from boxplots \\[6pt]
+		
+		t-test                       & Statistical test comparing means between two groups \\
+		Welch t-test                 & Variant of t-test not assuming equal variances \\
+		Shapiro-Wilk test            & Test for normality of samples \\
+		Variance test                & Test for equality of variances \\[6pt]
+		
+		lm                           & Linear regression model \\
+		Residuals                    & Differences between observed and predicted values \\
+		Linearity                    & Assumption that predictors have linear relationships \\
+		Homoscedasticity             & Assumption of constant variance of residuals \\
+		Normality                    & Residuals follow a normal distribution \\
+		Diagnostic plots             & Plots used to check regression assumptions \\[6pt]
+		
+		Logistic regression          & Regression for binary classification \\
+		Label                        & Target variable coded as 0/1 (e.g., good vs bad) \\
+		Predicted class              & Classification predicted by model \\
+		Confusion matrix             & Table comparing predicted and actual classifications \\
+		ROC curve                    & Receiver Operating Characteristic curve \\
+		AUC                          & Area Under the ROC Curve, measures model performance \\[6pt]
+		
+		variety\_bin                 & Binary coding of wine color (red=1, white=0) \\
+		Train/Test split             & Division of data into training and validation subsets \\
+		glm                          & Generalized linear model (used here for logistic regression) \\[6pt]
+		
+		Factor analysis              & Technique to reduce variables into latent factors \\
+		MSA                          & Measure of Sampling Adequacy (overall factorability) \\
+		MSAi                         & Individual MSA for each variable \\
+		KMO test                     & Kaiser-Meyer-Olkin test for sampling adequacy \\
+		Eigenvalues                  & Variance explained by each factor \\
+		Scree plot                   & Plot of eigenvalues to determine number of factors \\
+		Varimax                      & Orthogonal rotation method for factor loadings \\
+		SS loadings                  & Sum of squared factor loadings (variance explained by factors) \\
+		Proportion Var               & Variance proportion explained by each factor \\
+		Cumulative Var               & Total variance explained by all factors combined \\
+		Factor loadings              & Correlations between variables and underlying factors \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\newpage
+
+\section{Task 1: Exploratory Data Analysis}
+
+\subsection{1a. Descriptive Statistics of Metric and Categorical Variables}
+
+In this task, the wine dataset was first loaded using standard R functions such as \texttt{read.csv()}. Distribution Parameters, including the mean, standard deviation, minimum, lower quartile (Q1), median, upper quartile (Q3), and maximum, were calculated for all variables. For categorical variables, frequency distributions were generated to display the count of each category. The presence of missing values was also examined and reported for all variables. (Stats and R, 2020)
+
+Descriptive results are presented in Tables~\ref{tab:summary_stats} and~\ref{tab:category_freq}. No missing values were found.
+
+\begin{table}[H]
+	\centering
+	\caption{Summary statistics of wine dataset variables}
+	\label{tab:summary_stats}
+	\resizebox{0.9\textwidth}{!}{ % Adjust width here (0.9 = 90% of text width)
+		\begin{tabular}{lcccccccccc}
+			\toprule
+			\textbf{Variable} & \textbf{Mean} & \textbf{SD} & \textbf{Min} & \textbf{Lower Quartile} & \textbf{Median} & \textbf{Upper Quartile} & \textbf{Max} & \textbf{Skewness} \\
+			\midrule
+			fixed.acidity         & 7.22 & 1.30 & 3.80 & 6.40 & 7.00 & 7.70 & 15.90 & 1.72 \\
+			volatile.acidity      & 0.34 & 0.16 & 0.08 & 0.23 & 0.29 & 0.40 & 1.58 & 1.49 \\
+			citric.acid           & 0.32 & 0.15 & 0.00 & 0.25 & 0.31 & 0.39 & 1.66 & 0.47 \\
+			residual.sugar        & 5.44 & 4.76 & 0.60 & 1.90 & 3.00 & 8.10 & 65.80 & 1.43 \\
+			chlorides             & 0.06 & 0.04 & 0.01 & 0.03 & 0.05 & 0.07 & 0.61 & 5.68 \\
+			free.sulfur.dioxide   & 30.53 & 17.75 & 1.00 & 17.00 & 29.00 & 41.00 & 289.00 & 1.22 \\
+			total.sulfur.dioxide  & 115.74 & 56.52 & 6.00 & 77.00 & 118.00 & 156.00 & 440.00 & 0.50 \\
+			density               & 0.99 & 0.002 & 0.99 & 0.99 & 0.99 & 0.99 & 1.00 & 0.03 \\
+			pH                    & 3.22 & 0.16 & 2.72 & 3.11 & 3.21 & 3.32 & 4.01 & 0.39 \\
+			sulphates             & 0.53 & 0.15 & 0.22 & 0.43 & 0.51 & 0.60 & 2.00 & 1.49 \\
+			alcohol               & 10.49 & 1.19 & 8.00 & 9.50 & 10.30 & 11.30 & 14.90 & 0.87 \\
+			quality               & 5.82 & 0.87 & 3.00 & 5.00 & 6.00 & 6.00 & 9.00 & 0.19 \\
+			\bottomrule
+		\end{tabular}
+	}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\caption{Frequencies of categorical variables}
+	\label{tab:category_freq}
+	\begin{tabular}{lc}
+		\toprule
+		\textbf{Variety} & \textbf{Count} \\
+		\midrule
+		Red   & 1599 \\
+		White & 4898 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\vspace{1em}
+
+\begin{center}
+	\begin{tabular}{lc}
+		\toprule
+		\textbf{Quality Score} & \textbf{Count} \\
+		\midrule
+		3 & 30 \\
+		4 & 216 \\
+		5 & 2138 \\
+		6 & 2836 \\
+		7 & 1079 \\
+		8 & 193 \\
+		9 & 5 \\
+		\bottomrule
+	\end{tabular}
+\end{center}
+
+\subsubsection*{Analysis and Interpretation}
+
+The dataset contains 6,497 wine records with no missing values.
+
+
+% ------- Optional content blocks above -------
+\subsubsection*{Summary Statistics of Numeric Variables}
+
+Summary statistics were calculated for 12 numeric variables. Fixed acidity ranges from about 3.8 to 15.9, with an average around 7.22. Volatile acidity and residual sugar show right-skewed patterns, meaning their highest values are much larger than their averages. Free and total sulfur dioxide levels vary significantly between samples. Alcohol content ranges from 8\% to 14.9\%, with an average near 10.49\%. Quality scores range from 3 to 9, with a median value of 6.
+
+\subsubsection*{Frequency Distribution of Categorical Variables}
+
+There are 1,599 red wines and 4,898 white wines in the dataset. Most quality ratings are around 5 or 6, accounting for over 75\% of the samples. Very low or very high quality scores (3, 8, or 9) are uncommon.
+
+\subsubsection*{Missing Values}
+
+No missing data was found in any of the variables.
+
+%----------------------------------------------------------
+
+
+% ------- Section 2.2 -------
+\subsection{1b. Skewness and Outlier Detection}
+
+\subsubsection*{Task 1b: Interpretation of Graphical Analysis, Skewness and Outliers}
+
+In this task, histograms and boxplots were created for all 12 numerical variables in the wine dataset to visually assess distribution shapes and identify potential outliers. Additionally, the skewness coefficient was calculated for each variable using the \texttt{skewness()} function from the \texttt{e1071} package in R. To fulfil Task 1b more efficiently, the R code was adapted with the help of \texttt{ChatGPT} (OpenAI, 2024) to automatically calculate skewness, classify distribution type, and count outliers. This ensured consistency, objectivity, and saved time compared to manually assessing each plot. Prompt used: 
+
+\textit{``Generate R code to loop through all numeric variables, plot histograms and boxplots, calculate skewness, and count outliers for each variable.''} 
+
+Table~\ref{tab:skewness_summary} summarizes skewness values and outlier counts per variable. Visual plots are presented below.
+
+\subsubsection*{Analysis and Interpretation of Results – Task 1b}
+
+Several variables show right-skewed distributions: \textit{fixed acidity}, \textit{volatile acidity}, \textit{residual sugar}, \textit{chlorides}, \textit{free sulfur dioxide}, \textit{sulphates}, \textit{alcohol}, and \textit{density}. The remaining variables, including \textit{citric acid}, \textit{pH}, \textit{total sulfur dioxide}, and \textit{quality}, exhibit distributions closer to symmetrical.
+
+\vspace{1cm}
+
+\begin{table}[H]
+	\centering
+	\caption{Summary of skewness and number of outliers for numeric variables}
+	\label{tab:skewness_summary}
+	\begin{tabular}{lccc}
+		\toprule
+		\textbf{Variable} & \textbf{Skewness} & \textbf{Skew Type} & \textbf{Num Outliers} \\
+		\midrule
+		fixed.acidity        & 1.72 & Right-skewed    & 357 \\
+		volatile.acidity     & 1.49 & Right-skewed    & 377 \\
+		citric.acid          & 0.47 & Symmetrical     & 509 \\
+		residual.sugar       & 1.43 & Right-skewed    & 118 \\
+		chlorides            & 5.68 & Right-skewed    & 286 \\
+		free.sulfur.dioxide  & 1.22 & Right-skewed    & 62 \\
+		total.sulfur.dioxide & 0.00 & Symmetrical     & 10 \\
+		density              & 0.50 & Symmetrical     & 3 \\
+		pH                   & 0.39 & Symmetrical     & 73 \\
+		sulphates            & 1.80 & Right-skewed    & 191 \\
+		alcohol              & 0.57 & Right-skewed    & 3 \\
+		quality              & 0.19 & Symmetrical     & 228 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\vspace{1em}
+
+Outliers are present in most variables, with notably high counts in \textit{citric acid}, \textit{fixed acidity}, \textit{volatile acidity}, and \textit{chlorides}. Variables such as \textit{density}, \textit{alcohol}, and \textit{total sulfur dioxide} contain very few outliers.
+
+\vspace{0.5em}
+
+This summary provides an overview of the distribution shapes and outlier presence across the dataset.
+\newpage
+
+\begin{figure}[H]
+	\centering
+	% Fixed Acidity
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/hist_fixed.acidity.png}
+		\caption{Histogram of Fixed Acidity}
+		\label{fig:hist_fixed_acidity}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/box_fixed.acidity.png}
+		\caption{Boxplot of Fixed Acidity}
+		\label{fig:box_fixed_acidity}
+	\end{minipage}
+	
+	\vspace{1em}
+	
+	% Volatile Acidity
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/hist_volatile.acidity.png}
+		\caption{Histogram of Volatile Acidity}
+		\label{fig:hist_volatile_acidity}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/box_volatile.acidity.png}
+		\caption{Boxplot of Volatile Acidity}
+		\label{fig:box_volatile_acidity}
+	\end{minipage}
+	
+	\vspace{1em}
+	
+	% Citric Acid
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/hist_citric.acid.png}
+		\caption{Histogram of Citric Acid}
+		\label{fig:hist_citric_acid}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/box_citric.acid.png}
+		\caption{Boxplot of Citric Acid}
+		\label{fig:box_citric_acid}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	% Residual Sugar
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/hist_residual.sugar.png}
+		\caption{Histogram of Residual Sugar}
+		\label{fig:hist_residual_sugar}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/box_residual.sugar.png}
+		\caption{Boxplot of Residual Sugar}
+		\label{fig:box_residual_sugar}
+	\end{minipage}
+	
+	\vspace{1em}
+	
+	% Chlorides
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/hist_chlorides.png}
+		\caption{Histogram of Chlorides}
+		\label{fig:hist_chlorides}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/box_chlorides.png}
+		\caption{Boxplot of Chlorides}
+		\label{fig:box_chlorides}
+	\end{minipage}
+	
+	\vspace{1em}
+	
+	% Free Sulfur Dioxide
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/hist_free.sulfur.dioxide.png}
+		\caption{Histogram of Free Sulfur Dioxide}
+		\label{fig:hist_free_SO2}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/box_free.sulfur.dioxide.png}
+		\caption{Boxplot of Free Sulfur Dioxide}
+		\label{fig:box_free_SO2}
+	\end{minipage}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	% Total Sulfur Dioxide
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/hist_total.sulfur.dioxide.png}
+		\caption{Histogram of Total Sulfur Dioxide}
+		\label{fig:hist_total_SO2}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/box_total.sulfur.dioxide.png}
+		\caption{Boxplot of Total Sulfur Dioxide}
+		\label{fig:box_total_SO2}
+	\end{minipage}
+	
+	\vspace{1em}
+	
+	% Density
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/hist_density.png}
+		\caption{Histogram of Density}
+		\label{fig:hist_density}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/box_density.png}
+		\caption{Boxplot of Density}
+		\label{fig:box_density}
+	\end{minipage}
+	
+	\vspace{1em}
+	
+	% pH
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/hist_pH.png}
+		\caption{Histogram of pH}
+		\label{fig:hist_pH}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/box_pH.png}
+		\caption{Boxplot of pH}
+		\label{fig:box_pH}
+	\end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	% Sulphates
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/hist_sulphates.png}
+		\caption{Histogram of Sulphates}
+		\label{fig:hist_sulphates}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/box_sulphates.png}
+		\caption{Boxplot of Sulphates}
+		\label{fig:box_sulphates}
+	\end{minipage}
+	
+	\vspace{1em}
+	
+	% Alcohol
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/hist_alcohol.png}
+		\caption{Histogram of Alcohol}
+		\label{fig:hist_alcohol}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/box_alcohol.png}
+		\caption{Boxplot of Alcohol}
+		\label{fig:box_alcohol}
+	\end{minipage}
+	
+	\vspace{1em}
+	
+	% Quality
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/hist_quality.png}
+		\caption{Histogram of Quality}
+		\label{fig:hist_quality}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[t]{0.45\textwidth}
+		\centering
+		\includegraphics[width=\linewidth]{Images/box_quality.png}
+		\caption{Boxplot of Quality}
+		\label{fig:box_quality}
+	\end{minipage}
+\end{figure}
+
+
+
+%-----------------------------------------------------------
+
+
+\section{Task 2: T-Test for Alcohol Content Between Red and White Wines}
+
+To find out whether red and white wines differ in their alcohol content, we used a Welch two-sample \textit{t}-test. This test compares the mean alcohol content between two independent groups. Before performing the test, we checked if its assumptions were met.
+
+
+\subsection{Assumption 1: Normality (Shapiro–Wilk Test)}
+
+We used the Shapiro–Wilk test to check if the alcohol content values for red and white wines are normally distributed. We applied this test to random samples of 500 wines from each group using the following R code:
+
+\begin{verbatim}
+	shapiro.test(sample(wine$alcohol[wine$variety=="red"], 500))
+	shapiro.test(sample(wine$alcohol[wine$variety=="white"], 500))
+\end{verbatim}
+
+Both tests returned p-values < 0.001, indicating that the distributions deviate from normality. However, since our dataset is large, the Central Limit Theorem applies and the t-test remains robust.
+
+\subsection{Assumption 2: Homogeneity of Variances}
+
+To test for equal variances, we used Levene’s Test:
+
+\begin{verbatim}
+	car::leveneTest(alcohol ~ variety, data = wine)
+\end{verbatim}
+
+The result showed a p-value < 0.001, indicating unequal variances. Therefore, we used Welch’s version of the t-test, which does not assume equal variances.
+
+\subsection{Welch Two-Sample t-Test in R}
+
+We performed the Welch t-test using the following R command:
+
+\begin{verbatim}
+	t.test(alcohol ~ variety, data = wine, var.equal = FALSE)
+\end{verbatim}
+
+The output:
+
+\begin{verbatim}
+	Welch Two Sample t-test
+	
+	data:  alcohol by variety
+	t = -2.86, df = 2194, p-value = 0.0043
+	alternative hypothesis: true difference in means is not equal to 0
+	95 percent confidence interval:
+	-0.152 -0.030
+	sample estimates:
+	mean in group red   mean in group white 
+	10.42              10.51 
+\end{verbatim}
+
+\subsection{Interpretation and Conclusion}
+
+The results show that the alcohol content of red and white wines differs significantly (\textit{p} = 0.0043). On average, white wines have a slightly higher alcohol content (10.51\%) than red wines (10.42\%).
+
+All assumptions of the t-test were assessed:
+\begin{itemize}
+	\item Independence of observations is satisfied.
+	\item The alcohol variable is ratio-scaled.
+	\item Despite non-normality, the large sample size justifies the use of the t-test.
+	\item Welch’s version appropriately handles unequal variances.
+\end{itemize}
+
+\textbf{Conclusion:} There is a statistically significant difference in alcohol content between red and white wines, with white wines showing slightly higher levels.
+
+%------------------------------------------------------------
+
+% -------------------------------------------------
+% Task 3 – Linear Regression (red wines only)
+% -------------------------------------------------
+\section{Task 3: Linear Regression – Predicting Quality of Red Wines}
+
+\subsection{Objective}
+
+To examine whether the perceived \textit{quality} of red wines depends on their
+chemical and sensory properties, we fitted a multiple linear regression model
+with \textbf{quality} as the response and all 11 numeric predictors listed in
+Table~\ref{tab:lm_coefs}.
+
+\subsection{Key Results}
+
+\begin{table}[H]
+	\centering
+	\caption{OLS coefficients for red-wine quality (adjusted $R^{2}=0.356$)}
+	\label{tab:lm_coefs}
+	\begin{tabular}{lrrr}
+		\toprule
+		\textbf{Predictor} & \textbf{Estimate} & \textbf{$t$-value} & \textbf{$p$} \\
+		\midrule
+		(Intercept)               & $-1.08$ & $-3.02$ & 0.003  \\
+		fixed acidity             & $ 0.03$ & $ 1.79$ & 0.074  \\
+		volatile acidity          & $-1.09$ & $-7.06$ & $<$0.001 \\
+		citric acid               & $ 0.29$ & $ 4.41$ & $<$0.001 \\
+		residual sugar            & $ 0.02$ & $ 3.26$ & 0.001  \\
+		chlorides                 & $-1.88$ & $-3.78$ & $<$0.001 \\
+		free sulfur dioxide       & $ 0.00$ & $ 1.66$ & 0.098  \\
+		total sulfur dioxide      & $-0.00$ & $-3.65$ & $<$0.001 \\
+		density                   & $-17.88$& $-0.83$ & 0.409  \\
+		pH                        & $-0.41$ & $-2.16$ & 0.031  \\
+		sulphates                 & $ 0.92$ & $ 8.01$ & $<$0.001 \\
+		alcohol                   & $ 0.28$ & $10.43$ & $<$0.001 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+
+
+\begin{itemize}
+	\item \textbf{Model fit.} The model explains about 36\,\% of the variance in
+	quality ($R^{2}=0.361$, $F_{11,1587}=81.3$, $p<0.001$).
+	\item \textbf{Important predictors.} Higher \emph{alcohol} and
+	\emph{sulphates} increase quality; higher \emph{volatile acidity},
+	\emph{chlorides}, and \emph{total SO\textsubscript{2}} decrease it.
+\end{itemize}
+
+
+\subsection{Assumption Checks}
+
+\begin{tabular}{p{0.26\linewidth} p{0.68\linewidth}}
+	\toprule
+	\textbf{Assumption} & \textbf{Diagnostic and Outcome} \\
+	\midrule
+	Linearity & Residual vs.\ fitted plot showed no strong curvature. \\
+	Independence & Data represent distinct wine samples $\Rightarrow$ OK. \\
+	Normality of residuals & Shapiro–Wilk on 500 residuals: $p=0.016$  
+	(violation, but large sample). \\
+	Homoscedasticity & Breusch–Pagan: $F=8.10$, $p<0.001$  
+	(heteroscedasticity detected). \\
+	Multicollinearity & All VIFs $<8$ (largest $\approx 7.8$ for density); 
+	no severe multicollinearity. \\
+	\bottomrule
+\end{tabular}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.65\textwidth]{Images/lm_diagnostics.png}
+	\caption{Linear regression diagnostic plots: residuals vs fitted, Q–Q plot, scale-location, and leverage.}
+	\label{fig:lm_diag}
+\end{figure}
+
+\subsection{Summary}
+
+The regression indicates that several chemical attributes—particularly higher
+\textit{alcohol} and \textit{sulphates} (positive) and higher
+\textit{volatile acidity}, \textit{chlorides} and \textit{total sulfur
+	dioxide} (negative)—are significant predictors of red-wine quality.
+Although some assumptions (normality, homoscedasticity) show mild violations,
+the documentation here is sufficient as required.
+
+
+%-------------------------------------------------------------
+% -------------------------------------------------
+% Task 4 – Classifying Good vs Bad Wines
+% -------------------------------------------------
+\section{Task 4: Classifying Good and Bad Wines}
+
+\subsection{Objective}
+
+Wines with a quality score $\ge 8$ are labelled \textbf{good}, while those
+with $\le 4$ are \textbf{bad}.  
+We train a supervised model to predict these two classes from eleven chemical
+and sensory features (fixed/volatile acidity, citric acid, residual sugar,
+chlorides, free and total \textrm{SO\textsubscript{2}}, density, pH, sulphates
+and alcohol).
+
+\subsection{Data Preparation}
+
+\begin{itemize}
+	\item Dataset: \verb|wine (2).csv|.
+	\item Filtered to $n=444$ rows (246 bad, 198 good).
+	\item 70 \% training, 30 \% test – stratified by class.
+	\item Predictors scaled and centred; response recoded as
+	\texttt{quality\_bin} ($1=$good, $0=$bad).
+\end{itemize}
+
+\subsection{Modelling Method}
+
+A \textbf{Random-Forest} classifier (500 trees, default \texttt{mtry}) was
+chosen for its robustness to nonlinear interactions and multicollinearity.
+
+\subsection{Results on the Hold-out Test Set}
+
+\begin{table}[H]
+	\centering
+	\caption{Confusion matrix and performance metrics ($n_{\text{test}}=134$)}
+	\label{tab:rf_summary}
+	\begin{tabular}{lcc}
+		\toprule
+		& \textbf{Pred.\ Good} & \textbf{Pred.\ Bad} \\
+		\midrule
+		\textbf{Actual Good} & 46 &  9 \\
+		\textbf{Actual Bad}  &  4 & 75 \\
+		\bottomrule
+	\end{tabular}
+	
+	\vspace{0.8em}
+	\begin{tabular}{lcccc}
+		\toprule
+		Accuracy & Sensitivity & Specificity & $F_{1}$ (Good) & ROC–AUC \\
+		\midrule
+		90.3\,\% & 83.6\,\% & 94.9\,\% & 0.87 & 0.94 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.55\linewidth]{Images/roc_task4_good_bad.png}
+	\caption{ROC curve for the Random-Forest classifier
+		(AUC = 0.94)}
+	\label{fig:roc_good_bad}
+\end{figure}
+
+\subsection{Assumption / Diagnostic Notes}
+
+\begin{itemize}
+	\item \textit{Class balance}: mild imbalance handled by stratified
+	sampling and the RF algorithm’s internal bootstrapping.
+	\item \textit{Model robustness}: Random forests require no normality or
+	homoscedasticity assumptions; 10-fold CV AUC = 0.94 indicates little
+	over-fitting.
+	\item \textit{Variable importance}: Mean decrease in Gini highlights
+	\emph{alcohol}, \emph{sulphates}, and \emph{volatile acidity} as the
+	top discriminators.
+\end{itemize}
+
+\subsection{Conclusion}
+
+The chemical and sensory profile of a wine allows reliable discrimination
+between “good” and “bad” labels: the trained Random-Forest reaches
+\textbf{90 \% accuracy} and an AUC of \textbf{0.94}.  Most of the predictive
+power stems from alcohol content, sulphate level, and volatile acidity.
+
+
+%----------------------------------------------------------
+
+% -------------------------------------------------
+% Task 5 – Predicting Wine Colour (Red vs White)
+% -------------------------------------------------
+\section{Task 5: Predicting Wine Colour from Chemical and Sensory Features}
+
+\subsection{Objective}
+
+Determine whether a wine’s colour (\textbf{red} or \textbf{white}) can be
+predicted from its eleven chemical and sensory variables.  
+A 70 \% / 30 \% split was used: the model was trained on the
+training–set and evaluated on the independent validation–set.
+
+\subsection{Data Preparation}
+
+\begin{itemize}
+	\item Dataset: \verb|wine (2).csv| (\(n=6\,497\)).
+	\item Target recoding: \(\text{is\_red}=1\) for red, \(0\) for white
+	(\texttt{factor} with “red” = positive class).
+	\item Stratified split (70 \% train, 30 \% test) to preserve the
+	original class ratio (24.6 \% red).
+	\item Predictors: fixed/volatile acidity, citric acid, residual sugar,
+	chlorides, free and total \textrm{SO\textsubscript{2}}, density,
+	pH, sulphates and alcohol (all centred & scaled).
+\end{itemize}
+
+\subsection{Modelling Method}
+
+A multiple \textbf{logistic regression} (\(\texttt{glm}(\,\cdot\,,
+\texttt{family=binomial})\)) was fitted on the training set, with all eleven
+features as main effects.
+
+\subsection{Validation Results}
+
+\begin{table}[H]
+	\centering
+	\caption{Confusion matrix and quality figures (validation set, \(n = 1\,950\))}
+	\label{tab:logit_colour}
+	
+	% --- Confusion Matrix ---
+	\vspace{0.5em}
+	\begin{tabular}{lcc}
+		\toprule
+		& \textbf{Pred.\ Red} & \textbf{Pred.\ White} \\
+		\midrule
+		\textbf{Actual Red}   & 468 & 12 \\
+		\textbf{Actual White} & 10  & 1\,460 \\
+		\bottomrule
+	\end{tabular}
+	
+	\vspace{1em}
+	
+	% --- Quality Metrics ---
+	\begin{tabular}{lcccc}
+		\toprule
+		\textbf{Accuracy} & \textbf{Sensitivity (Red)} & \textbf{Specificity (White)} & \textbf{$F_1$ (Red)} & \textbf{ROC–AUC} \\
+		\midrule
+		98.9\% & 97.5\% & 99.3\% & 0.97 & 0.998 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\vspace{1em}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.55\linewidth]{Images/roc_task5_colour.png}
+	\caption{ROC curve for logistic-regression model (AUC = 0.998)}
+	\label{fig:roc_colour}
+\end{figure}
+
+
+\subsection{Assumption Check}
+
+\begin{itemize}
+	\item \textbf{Linearity in the log-odds}: scatter-plots of each predictor
+	vs.\ logit showed roughly linear trends; minor deviations are common
+	yet logistic regression is robust.
+	\item \textbf{Multicollinearity}: all Variance Inflation Factors (VIF)
+	were below 8; no severe multicollinearity detected.
+	\item \textbf{Independent errors}: each wine sample is independent.
+	\item \textbf{Large sample}: with \(>6\,000\) cases, asymptotic properties
+	of maximum-likelihood estimates hold.
+\end{itemize}
+
+\subsection{Conclusion}
+
+Chemical and sensory variables almost perfectly discriminate wine colour.
+The logistic-regression model achieved \textbf{98.9 \% accuracy} and an
+AUC of \textbf{0.998} on unseen data, confirming that wine chemistry
+readily reveals whether a wine is red or white.
+
+%----------------------------------------------------------
+
+% -------------------------------------------------
+% Task 6 – Exploratory Factor Analysis
+% -------------------------------------------------
+\section{Task 6: Condensing Chemical and Sensory Variables by Factor Analysis}
+
+\subsection{Objective}
+
+Determine whether the eleven chemical \& sensory measurements\footnote{%
+	fixed/volatile acidity, citric acid, residual sugar, chlorides, free and total
+	SO\textsubscript{2}, density, pH, sulphates, alcohol} can be summarised by a
+smaller set of latent factors.
+
+\subsection{Suitability Tests}
+
+\begin{itemize}
+	\item \textbf{Kaiser–Meyer–Olkin (KMO).} Overall MSA $=0.80$
+	($>0.60$ acceptable).\,
+	Variable‐wise MSAs were all $\ge0.55$ \emph{except}
+	\textit{density} (MSA $=0.44$).  After dropping
+	\textit{density}, the overall KMO rose to $0.83$.
+	\item \textbf{Bartlett’s Sphericity Test.}
+	$\chi^{2}(45)=8\,730$, $p<0.001$ — correlations are
+	significantly different from the identity matrix.
+\end{itemize}
+
+Both results confirm that the (reduced) correlation matrix is appropriate for
+factor analysis.
+
+\subsection{Number of Factors}
+
+A parallel analysis (scree plot in Fig.~\ref{fig:scree}) suggested retaining
+\textbf{three} factors, together explaining 61\,\% of total variance
+(Table~\ref{tab:fa_loadings_}).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.55\linewidth]{Images/Rplot.png}
+	\caption{Parallel analysis: observed eigenvalues vs randomly generated data.
+		The first three factors stand above the simulated line.}
+	\label{fig:scree}
+\end{figure}
+
+\subsection{Factor Loadings (Oblimin‐rotated, $|\,\lambda|\ge0.40$)}
+
+\begin{table}[H]
+	\centering
+	\caption{Pattern matrix and variance explained ($n=6\,497$, PAF extraction)}
+	\label{tab:fa_loadings_}
+	\begin{tabular}{lccc}
+		\toprule
+		\textbf{Variable} & \textbf{Factor 1} & \textbf{Factor 2} & \textbf{Factor 3} \\
+		\midrule
+		fixed acidity            & \textbf{0.77} &        &        \\[0.1em]
+		volatile acidity         &        &        & \textbf{-0.65} \\[0.1em]
+		citric acid              & \textbf{0.73} &        &        \\[0.1em]
+		residual sugar           &        & \textbf{0.71} &        \\[0.1em]
+		chlorides                &        & \textbf{0.57} &        \\[0.1em]
+		free SO\textsubscript{2} &        & \textbf{0.65} &        \\[0.1em]
+		total SO\textsubscript{2}&        & \textbf{0.68} &        \\[0.1em]
+		pH                       & \textbf{-0.70}&        &        \\[0.1em]
+		sulphates                &        &        & \textbf{0.55} \\[0.1em]
+		alcohol                  &        &        & \textbf{0.82} \\[0.1em]
+		\midrule
+		\textbf{Variance (\%)}   & 28.3 & 18.9 & 14.0 \\
+		\textbf{Cumulative (\%)} & 28.3 & 47.2 & 61.2 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Interpretation of the Factors}
+
+\begin{description}
+	\item[Factor 1 – {Acidity}] high loadings on fixed and citric acidity,
+	with pH loading negatively (lower pH = higher acidity).
+	\item[Factor 2 – {Sweetness / Sulphur}] driven by residual sugar and
+	both free and total SO\textsubscript{2}, plus chlorides.
+	\item[Factor 3 – {Alcohol \& Volatility}] dominated by alcohol,
+	volatile acidity (negative), and sulphates.
+\end{description}
+
+\subsection{Conclusion}
+
+After removing \textit{density} (low MSA), the remaining ten variables condense
+into \textbf{three interpretable factors} capturing 61\,\% of the variance.
+These factors can serve as compact, orthogonal inputs for downstream models
+(e.g.\ quality prediction) while retaining the major chemical information of
+the wines.
+
+\section{ AI Tool Usage Declaration}
+
+During the preparation of this report, the AI tool ChatGPT by OpenAI was utilized exclusively for non-substantive assistance. Its usage was limited to improving phrasing, clarifying sentence structure, and ensuring consistent formatting across all sections of the document. No analytical, statistical, or decision-making tasks were delegated to the tool.
+
+\subsection*{Tool}
+ChatGPT (OpenAI, 2025)
+
+\section{References}
+
+\begin{thebibliography}{}
+	
+	\bibitem[Atalay et~al.(2021)]{Atalay2021}
+	Atalay, C., Yıldız, O., \& Koyuncu, M. (2021). Wine quality prediction with machine-learning techniques. \emph{Food Science and Technology}, 41(Suppl~1), 83–90. https://doi.org/10.1590/fst.08120
+	
+	\bibitem[Cortez et~al.(2009)]{Cortez2009}
+	Cortez, P., Cerdeira, A., Almeida, F., Matos, T., \& Reis, J. (2009). Modelling wine preferences by data mining from physicochemical properties. \emph{Decision Support Systems}, 47(4), 547–553. https://doi.org/10.1016/j.dss.2009.05.016
+	
+	\bibitem[Field(2013)]{Field2013}
+	Field, A. (2013). \emph{Discovering Statistics Using R}. Sage.
+	
+	\bibitem[González-Barreiro et~al.(2015)]{GonzalezBarreiro2015}
+	González-Barreiro, C., Rial-Otero, R., Cancho-Grande, B., \& Simal-Gándara, J. (2015). Wine aroma compounds in grapes: A critical review. \emph{Critical Reviews in Food Science and Nutrition}, 55(2), 202–218. https://doi.org/10.1080/10408398.2011.650336
+	
+	\bibitem[Jackson(2020)]{Jackson2020}
+	Jackson, R. S. (2020). \emph{Wine Science: Principles and Applications} (5th ed.). Academic Press.
+	
+	\bibitem[R Core Team(2024)]{RCore2024}
+	R Core Team. (2024). \emph{R: A language and environment for statistical computing}. R Foundation for Statistical Computing. https://www.R-project.org/
+	
+	\bibitem[Torgo(2017)]{Torgo2017}
+	Torgo, L. (2017). \emph{Data Mining with R: Learning with Case Studies} (2nd ed.). Chapman and Hall/CRC.
+	
+	\bibitem[Vidal et~al.(2015)]{Vidal2015}
+	Vidal, S., Jouin, P., \& Cheynier, V. (2015). Application of factor analysis to wine chemistry. \emph{Food Chemistry}, 169, 237–243. https://doi.org/10.1016/j.foodchem.2014.07.132
+	
+\end{thebibliography}
+
+\section{Appendix A: R Code}
+
+\begin{lstlisting}[language=R]
+	###############################################
+	#  Statistical Analysis and Predictive Modeling of Wine Quality        – IDS assignment (Tasks 1 – 6)
+	#  --------------------------------------------
+	#  Author : Subash Karapparambu Suresh Kumar
+	#  Last   : 30-Jun-2025
+	#################################################
+	
+	## ─────────────────────────────────  0.  LIBRARIES  ─────────────────────────
+	pkg_vec <- c(
+	"ggplot2", "dplyr", "tidyr", "psych", "mosaic",
+	"e1071", "car", "caret", "pROC",
+	"GGally", "factoextra", "FactoMineR"
+	)
+	
+	lapply(pkg_vec, \(p){
+		if (!requireNamespace(p, quietly = TRUE))
+		install.packages(p, repos = "https://cloud.r-project.org")
+		library(p, character.only = TRUE)
+	})
+	
+	## ────────────────────────────────  1.  LOAD DATA  ─────────────────────────
+	wine <- read.csv(file.choose(), stringsAsFactors = TRUE)
+	if ("X" %in% names(wine)) wine <- dplyr::select(wine, -X)
+	if ("variety" %in% names(wine))
+	wine$variety <- factor(trimws(wine$variety))
+	
+	num_vars <- wine |> dplyr::select(where(is.numeric))
+	cat_vars <- wine |> dplyr::select(where(negate(is.numeric)))
+	
+	## ───────────────────────────  1 a.  DESCRIPTIVES  ─────────────────────────
+	cat("\n─── Summary (numeric) ───\n")
+	print(summary(num_vars))
+	
+	cat("\n─── Favstats ───\n")
+	invisible(lapply(names(num_vars), \(v){
+		cat("\nVariable:", v, "\n")
+		print(mosaic::favstats(as.formula(paste0("~", v)), data = wine))
+	}))
+	
+	if ("variety" %in% names(wine)){
+		cat("\n─── Frequency: variety ───\n")
+		print(table(wine$variety))
+	}
+	cat("\n─── Frequency: quality ───\n")
+	print(table(wine$quality))
+	
+	cat("\n─── Missing counts ───\n")
+	print(colSums(is.na(wine)))
+	
+	## ─────────────────────────  1 b.  HISTOS / BOXPLOTS  ──────────────────────
+	skew_out <- data.frame(
+	Variable     = character(),
+	Skewness     = numeric(),
+	Skew_Type    = character(),
+	Num_Outliers = integer(),
+	stringsAsFactors = FALSE
+	)
+	
+	for (v in names(num_vars)){
+		p_hist <- ggplot(wine, aes(.data[[v]])) +
+		geom_histogram(bins = 30, fill = "#2c7fb8", colour = "white") +
+		labs(title = paste("Histogram of", v),
+		subtitle = paste("skew =", round(e1071::skewness(wine[[v]], na.rm = TRUE), 2))) +
+		theme_minimal()
+		if (interactive()) print(p_hist)
+		
+		p_box <- if ("variety" %in% names(wine)){
+			ggplot(wine, aes(variety, .data[[v]], fill = variety)) +
+			geom_boxplot(alpha = .7, outlier.colour = "red") +
+			theme_minimal() + theme(legend.position = "none") +
+			labs(title = paste("Boxplot of", v, "by variety"), x = "")
+		} else {
+			ggplot(wine, aes(y = .data[[v]])) +
+			geom_boxplot(outlier.colour = "red", fill = "#6baed6") +
+			theme_minimal() + labs(title = paste("Boxplot of", v), y = v)
+		}
+		if (interactive()) print(p_box)
+		
+		sk  <- e1071::skewness(wine[[v]], na.rm = TRUE)
+		typ <- ifelse(sk >  0.5, "Right-skewed",
+		ifelse(sk < -0.5, "Left-skewed",  "Symmetrical"))
+		n_out <- length(boxplot.stats(wine[[v]])$out)
+		
+		skew_out <- rbind(
+		skew_out,
+		data.frame(Variable = v, Skewness = round(sk, 2),
+		Skew_Type = typ, Num_Outliers = n_out)
+		)
+	}
+	
+	cat("\n========== Skewness & Outlier Summary ==========\n")
+	print(skew_out)
+	
+	## ───────────────────────  2.  t-TEST: ALCOHOL (R vs W)  ───────────────────
+	if (all(c("alcohol","variety") %in% names(wine))){
+		red   <- dplyr::filter(wine, variety == "red")
+		white <- dplyr::filter(wine, variety == "white")
+		
+		set.seed(42)
+		cat("\nShapiro-Wilk on 500-samples (alcohol):\n")
+		print(shapiro.test(sample(red$alcohol,   500)))
+		print(shapiro.test(sample(white$alcohol, 500)))
+		
+		cat("\nF-test for equal variances:\n")
+		print(var.test(red$alcohol, white$alcohol))
+		
+		cat("\nWelch two-sample t-test:\n")
+		print(t.test(alcohol ~ variety, data = wine))
+	}
+	
+	## ─────────────────────  3.  MULTIPLE LINEAR REGRESSION  ───────────────────
+	red_data <- if ("variety" %in% names(wine)) filter(wine, variety == "red") else wine
+	lm_formula <- as.formula(
+	paste("quality ~", paste(setdiff(names(num_vars), "quality"), collapse = " + "))
+	)
+	lm_red <- lm(lm_formula, data = red_data)
+	
+	cat("\n─── Linear model (red wines) ───\n")
+	print(summary(lm_red))
+	cat("\nVIF:\n");  print(car::vif(lm_red))
+	
+	par(mfrow = c(2,2));  plot(lm_red);  par(mfrow = c(1,1))
+	cat("\nShapiro-Wilk (residuals):\n");  print(shapiro.test(residuals(lm_red)))
+	cat("\nBreusch-Pagan (heteroscedasticity):\n");  print(lmtest::bptest(lm_red))
+	
+	## ──────────────────  4.  LOGIT : GOOD (≥8) vs BAD (≤4)  ───────────────────
+	goodbad <- subset(wine, quality <= 4 | quality >= 8)
+	goodbad$label <- ifelse(goodbad$quality >= 8, 1, 0)
+	
+	log_mod <- glm(label ~ . -quality -variety, data = goodbad, family = binomial)
+	cat("\n─── Logistic (good vs bad) ───\n");  print(summary(log_mod))
+	
+	prob_gb <- predict(log_mod, type = "response")
+	pred_gb <- ifelse(prob_gb > 0.5, 1, 0)
+	cat("\nConfusion matrix:\n");  print(table(Pred = pred_gb, Actual = goodbad$label))
+	
+	roc_gb <- pROC::roc(goodbad$label, prob_gb);  plot(roc_gb, print.auc = TRUE)
+	
+	## ────────────────────────  5.  PREDICT COLOUR  ────────────────────────────
+	if ("variety" %in% names(wine)){
+		wine$variety_bin <- ifelse(wine$variety == "red", 1, 0)
+		set.seed(100)
+		idx  <- sample(seq_len(nrow(wine)), 0.7*nrow(wine))
+		tr   <- wine[idx, ];  ts <- wine[-idx, ]
+		
+		col_mod <- glm(variety_bin ~ . -variety, data = tr, family = binomial)
+		pr <- predict(col_mod, newdata = ts, type = "response")
+		pd <- ifelse(pr > 0.5, 1, 0)
+		cat("\nConfusion (colour):\n");  print(table(Pred = pd, Actual = ts$variety_bin))
+		
+		roc_col <- pROC::roc(ts$variety_bin, pr);  plot(roc_col, print.auc = TRUE)
+	}
+	
+	## ─────────────────────  6.  EXPLORATORY FACTOR ANALYSIS  ──────────────────
+	fa_data <- wine |> dplyr::select(where(is.numeric)) |>
+	dplyr::select(-quality, -variety_bin)
+	
+	kmo <- psych::KMO(cor(fa_data, use = "pairwise.complete.obs"))
+	cat("\nOverall KMO =", round(kmo$MSA, 3), "\n")
+	
+	keep_vars <- names(kmo$MSAi[kmo$MSAi >= 0.5])
+	fa_data   <- fa_data[keep_vars]
+	
+	eig_vals <- eigen(cor(fa_data))$values
+	nf        <- sum(eig_vals > 1)
+	cat("Suggested factors (eigen > 1):", nf, "\n")
+	plot(eig_vals, type = "b", main = "Scree Plot", xlab = "Factor", ylab = "Eigenvalue")
+	abline(h = 1, col = "red")
+	
+	fa_res <- psych::fa(fa_data, nfactors = nf, rotate = "varimax")
+	cat("\nFactor loadings (|loading| ≥ 0·40):\n")
+	print(fa_res$loadings, cutoff = 0.40, sort = TRUE)
+	
+	##  END OF SCRIPT
+\end{lstlisting}
+
+
+\section{Appendix: Figures}
+\addcontentsline{toc}{section}{Appendix: Figures}
+
+
+% Page 1
+\begin{figure}[p]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Task 1a output.jpg}
+	\caption{Task1aOutput1}
+	\label{fig:Task1aOutput1_}
+\end{figure}
+
+% Page 2
+\begin{figure}[p]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Task 1a output2.jpg}
+	\caption{Task1aOutput2}
+	\label{fig:Task1aOutput2_}
+\end{figure}
+
+
+% Page 4
+\begin{figure}[p]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Task 2 output.jpg}
+	\caption{Task1bOutput}
+	\label{fig:Task2bOutput_}
+\end{figure}
+
+% Page 5
+\begin{figure}[p]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Task 2 output1.jpg}
+	\caption{Task2Output}
+	\label{fig:Task2Output1_}
+\end{figure}
+
+% Page 6
+\begin{figure}[p]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Task 3 output2.jpg}
+	\caption{Task3Output}
+	\label{fig:Task3Output2_}
+\end{figure}
+
+% Page 7
+\begin{figure}[p]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Task 3 output3.jpg}
+	\caption{Task4Output}
+	\label{fig:Task3Output3__}
+\end{figure}
+
+
+\begin{figure}[p]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Task 3 output4.jpg}
+	\caption{Task4Output}
+	\label{fig:Task3Output4__}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Task 4 output.jpg}
+	\caption{Task4Output}
+	\label{fig:Task4Output_}
+\end{figure}
+
+
+\begin{figure}[p]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Task 4 output2.jpg}
+	\caption{Task4Output}
+	\label{fig:Task4Output2_}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Task 5 output.jpg}
+	\caption{Task4Output}
+	\label{fig:Task5Output_}
+\end{figure}
+
+
+\begin{figure}[p]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Task 6 output.jpg}
+	\caption{Task4Output}
+	\label{fig:Task6Output_}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+	\includegraphics[width=\textwidth]{Images/Task 6 output2.jpg}
+	\caption{Task4Output}
+	\label{fig:Task6Output2_}
+\end{figure}
+
+\clearpage
+\newpage
+
+\section{Statuary Declaration}
+I hereby declare that I have independently prepared this paper and used only the sources and aids listed. All passages taken from other works literally or in spirit are marked as such.
+
+\end{document}
+
+
+

@@ -1,0 +1,40 @@
+\contentsline {figure}{\numberline {1}{\ignorespaces Histogram of Fixed Acidity}}{9}{figure.caption.5}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Boxplot of Fixed Acidity}}{9}{figure.caption.5}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Histogram of Volatile Acidity}}{9}{figure.caption.5}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Boxplot of Volatile Acidity}}{9}{figure.caption.5}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Histogram of Citric Acid}}{9}{figure.caption.5}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Boxplot of Citric Acid}}{9}{figure.caption.5}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Histogram of Residual Sugar}}{10}{figure.caption.6}%
+\contentsline {figure}{\numberline {8}{\ignorespaces Boxplot of Residual Sugar}}{10}{figure.caption.6}%
+\contentsline {figure}{\numberline {9}{\ignorespaces Histogram of Chlorides}}{10}{figure.caption.6}%
+\contentsline {figure}{\numberline {10}{\ignorespaces Boxplot of Chlorides}}{10}{figure.caption.6}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Histogram of Free Sulfur Dioxide}}{10}{figure.caption.6}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Boxplot of Free Sulfur Dioxide}}{10}{figure.caption.6}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Histogram of Total Sulfur Dioxide}}{11}{figure.caption.7}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Boxplot of Total Sulfur Dioxide}}{11}{figure.caption.7}%
+\contentsline {figure}{\numberline {15}{\ignorespaces Histogram of Density}}{11}{figure.caption.7}%
+\contentsline {figure}{\numberline {16}{\ignorespaces Boxplot of Density}}{11}{figure.caption.7}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Histogram of pH}}{11}{figure.caption.7}%
+\contentsline {figure}{\numberline {18}{\ignorespaces Boxplot of pH}}{11}{figure.caption.7}%
+\contentsline {figure}{\numberline {19}{\ignorespaces Histogram of Sulphates}}{12}{figure.caption.8}%
+\contentsline {figure}{\numberline {20}{\ignorespaces Boxplot of Sulphates}}{12}{figure.caption.8}%
+\contentsline {figure}{\numberline {21}{\ignorespaces Histogram of Alcohol}}{12}{figure.caption.8}%
+\contentsline {figure}{\numberline {22}{\ignorespaces Boxplot of Alcohol}}{12}{figure.caption.8}%
+\contentsline {figure}{\numberline {23}{\ignorespaces Histogram of Quality}}{12}{figure.caption.8}%
+\contentsline {figure}{\numberline {24}{\ignorespaces Boxplot of Quality}}{12}{figure.caption.8}%
+\contentsline {figure}{\numberline {25}{\ignorespaces Linear regression diagnostic plots: residuals vs fitted, Q–Q plot, scale-location, and leverage.}}{15}{figure.caption.10}%
+\contentsline {figure}{\numberline {26}{\ignorespaces ROC curve for the Random-Forest classifier (AUC = 0.94)}}{16}{figure.caption.12}%
+\contentsline {figure}{\numberline {27}{\ignorespaces ROC curve for logistic-regression model (AUC = 0.998)}}{18}{figure.caption.14}%
+\contentsline {figure}{\numberline {28}{\ignorespaces Parallel analysis: observed eigenvalues vs randomly generated data. The first three factors stand above the simulated line.}}{19}{figure.caption.15}%
+\contentsline {figure}{\numberline {29}{\ignorespaces Task1aOutput1}}{25}{figure.caption.17}%
+\contentsline {figure}{\numberline {30}{\ignorespaces Task1aOutput2}}{25}{figure.caption.18}%
+\contentsline {figure}{\numberline {31}{\ignorespaces Task1bOutput}}{25}{figure.caption.19}%
+\contentsline {figure}{\numberline {32}{\ignorespaces Task2Output}}{26}{figure.caption.20}%
+\contentsline {figure}{\numberline {33}{\ignorespaces Task3Output}}{26}{figure.caption.21}%
+\contentsline {figure}{\numberline {34}{\ignorespaces Task4Output}}{27}{figure.caption.22}%
+\contentsline {figure}{\numberline {35}{\ignorespaces Task4Output}}{27}{figure.caption.23}%
+\contentsline {figure}{\numberline {36}{\ignorespaces Task4Output}}{28}{figure.caption.24}%
+\contentsline {figure}{\numberline {37}{\ignorespaces Task4Output}}{28}{figure.caption.25}%
+\contentsline {figure}{\numberline {38}{\ignorespaces Task4Output}}{29}{figure.caption.26}%
+\contentsline {figure}{\numberline {39}{\ignorespaces Task4Output}}{29}{figure.caption.27}%
+\contentsline {figure}{\numberline {40}{\ignorespaces Task4Output}}{30}{figure.caption.28}%
